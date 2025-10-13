@@ -1,0 +1,60 @@
+.home-center {
+    background-color: white;
+    height: 478px;
+    width: 100.5%;
+    margin: 0px;
+    position: relative;
+    top: -5px;
+    left: -5px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    display: flex;
+    align-items: center;
+    font-size: x-large;
+}
+
+.home-left {
+    /* background-color: aqua; */
+    height:400px;
+    width: 30%;
+    position: relative;
+    left: 290px;
+    font-size: x-large;
+}
+
+.home-left p {
+    font-size: medium;
+}
+
+.home-right {
+    /* background-color: lightgray; */
+    height:400px;
+    width: 30%;
+    text-align: center;
+    position: relative;
+    left: 290px;
+    margin-top: 100px;
+    margin-left: 50px;
+}
+
+.home-right button {
+    height: 50px;
+    width: 100px;
+    padding: 15px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: large;
+}
+
+#home-lost-btn {
+    background-color: red;
+    color: white;
+    margin-right: 50px;
+}
+
+#home-found-btn {
+    background-color: Green;
+    color: white;
+}

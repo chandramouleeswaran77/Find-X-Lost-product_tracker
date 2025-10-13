@@ -1,0 +1,8 @@
+# === Root-level ignores (IntelliJ, OS junk) ===
+.idea/
+*.iml
+*.log
+.DS_Store
+Thumbs.db
+"frontend/src/components/login/Findx-GoogleAuth.json" 
+"frontend/src/components/login/Findx-GoogleAuth.json" 
