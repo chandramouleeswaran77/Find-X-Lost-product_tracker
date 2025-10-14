@@ -93,4 +93,47 @@ public class AdminCrudController {
         foundItemService.deleteFoundItem(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Admin actions
+    @PutMapping("/found/{id}/approve-claim")
+    public ResponseEntity<FoundItem> approveClaim(@RequestHeader(value = "X-Role", required = false) String role,
+                                                  @PathVariable String id) {
+        if (!isAdmin(role)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return foundItemService.approveClaim(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/found/{id}/decline-claim")
+    public ResponseEntity<FoundItem> declineClaim(@RequestHeader(value = "X-Role", required = false) String role,
+                                                  @PathVariable String id,
+                                                  @RequestParam(required = false) String reason) {
+        if (!isAdmin(role)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return foundItemService.declineClaim(id, reason)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/claims")
+    public ResponseEntity<List<FoundItem>> listPendingClaims(@RequestHeader(value = "X-Role", required = false) String role) {
+        if (!isAdmin(role)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        List<FoundItem> pending = foundItemRepository.findByStatus("PENDING_CLAIM");
+        if (pending == null || pending.isEmpty()) {
+            // Fallback if status text mismatched: any with a claimant recorded
+            pending = foundItemRepository.findByPendingClaimUserIdNotNull();
+        }
+        return ResponseEntity.ok(pending);
+    }
+    
+    @PutMapping("/lost/{id}/close")
+    public ResponseEntity<LostItem> closeLost(@RequestHeader(value = "X-Role", required = false) String role,
+                                              @PathVariable String id) {
+        if (!isAdmin(role)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Optional<LostItem> existing = lostItemRepository.findById(id);
+        if (existing.isEmpty()) return ResponseEntity.notFound().build();
+        LostItem item = existing.get();
+        item.setResolved(true);
+        item.setStatus("CLOSED");
+        return ResponseEntity.ok(lostItemService.updateLostItem(item));
+    }
 }

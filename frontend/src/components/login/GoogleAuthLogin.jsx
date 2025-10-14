@@ -38,7 +38,7 @@ const GoogleAuthLogin = ({ onSuccess }) => {
       const mockUser = {
         name: 'Demo User',
         email: 'demo@findx.com',
-        picture: 'https://via.placeholder.com/150',
+        picture: '/src/assets/profilelogo.png',
         token: 'demo-google-token'
       };
       

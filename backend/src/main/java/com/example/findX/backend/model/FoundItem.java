@@ -33,4 +33,8 @@ public class FoundItem {
     private String status; // OPEN, POSSIBLE_MATCH, CLOSED
     private String matchedWith; // ID of matched lost item
     private boolean notified; // to track if match email sent
+    // Claim workflow
+    private String pendingClaimUserId; // user id/email who claimed
+    private String claimDescription;
+    private String claimIdProof;
 }

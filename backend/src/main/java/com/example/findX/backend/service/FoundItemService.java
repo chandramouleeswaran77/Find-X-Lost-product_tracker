@@ -64,15 +64,69 @@ public class FoundItemService {
         Optional<FoundItem> foundItemOpt = foundItemRepository.findById(itemId);
         if (foundItemOpt.isPresent()) {
             FoundItem foundItem = foundItemOpt.get();
-            foundItem.setStatus("CLAIMED");
-            foundItem.setClaimed(true);
+            // Move to pending state for admin review
+            foundItem.setStatus("PENDING_CLAIM");
+            foundItem.setPendingClaimUserId(userId);
+            foundItem.setClaimDescription(description);
+            foundItem.setClaimIdProof(idProof);
             
-            // Send notification to user
+            // Notify user and admin
             notificationService.sendClaimNotification(userId, itemId, foundItem.getItem());
+            notificationService.notifyAdmin("User " + userId + " submitted a claim for '" + foundItem.getItem() + "'.");
             
             return foundItemRepository.save(foundItem);
         }
         return null;
+    }
+
+    public Optional<FoundItem> approveClaim(String itemId) {
+        Optional<FoundItem> foundItemOpt = foundItemRepository.findById(itemId);
+        if (foundItemOpt.isPresent()) {
+            FoundItem foundItem = foundItemOpt.get();
+            foundItem.setStatus("CLOSED");
+            foundItem.setClaimed(true);
+            FoundItem saved = foundItemRepository.save(foundItem);
+            if (foundItem.getPendingClaimUserId() != null) {
+                notificationService.sendClaimApproval(foundItem.getPendingClaimUserId(), itemId, foundItem.getItem());
+                notificationService.sendClaimDecisionEmail(
+                    foundItem.getPendingClaimUserId(),
+                    true,
+                    foundItem.getItem()
+                );
+            }
+            return Optional.of(saved);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<FoundItem> declineClaim(String itemId, String reason) {
+        Optional<FoundItem> foundItemOpt = foundItemRepository.findById(itemId);
+        if (foundItemOpt.isPresent()) {
+            FoundItem foundItem = foundItemOpt.get();
+            // Reset claim-related fields but keep the item open for future claims
+            String claimedUser = foundItem.getPendingClaimUserId();
+            foundItem.setStatus("OPEN");
+            foundItem.setPendingClaimUserId(null);
+            foundItem.setClaimDescription(null);
+            foundItem.setClaimIdProof(null);
+            FoundItem saved = foundItemRepository.save(foundItem);
+            if (claimedUser != null) {
+                notificationService.createNotification(
+                    claimedUser,
+                    "Your claim was declined" + (reason != null && !reason.isBlank() ? ": " + reason : "."),
+                    itemId,
+                    "FOUND",
+                    "CLAIM"
+                );
+                notificationService.sendClaimDecisionEmail(
+                    claimedUser,
+                    false,
+                    foundItem.getItem()
+                );
+            }
+            return Optional.of(saved);
+        }
+        return Optional.empty();
     }
     
     private void checkForMatches(FoundItem foundItem) {

@@ -9,7 +9,8 @@ import ReportLostPage from './components/report-lost-form/ReportLostForm.jsx';
 import ReportFoundForm from './components/report-found-form/ReportFoundForm.jsx';
 import FoundPage from './components/found-page/FoundPage.jsx';
 import ProfileRouter from './components/profile/ProfileRouter.jsx';
-import AdminDashboard from './components/admin/AdminDashboard.jsx';
+import AdminClaimsPage from './components/admin/AdminClaimsPage.jsx';
+import AdminItemsPage from './components/admin/AdminItemsPage.jsx';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -76,9 +77,14 @@ const AppRoutes = () => {
             <ProfileRouter />
           </PageTransition>
         } />
-        <Route path="/admin" element={
+        <Route path="/admin/claims" element={
           <PageTransition>
-            <AdminDashboard />
+            <AdminClaimsPage />
+          </PageTransition>
+        } />
+        <Route path="/admin/items" element={
+          <PageTransition>
+            <AdminItemsPage />
           </PageTransition>
         } />
       </Routes>

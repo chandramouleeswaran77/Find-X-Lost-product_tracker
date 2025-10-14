@@ -80,7 +80,7 @@ function Navbar() {
     { path: '/report-lost', label: 'Report Lost' },
     { path: '/report-found', label: 'Report Found' },
     { path: '/profile', label: 'Profile' },
-    ...(user?.role === 'ADMIN' ? [{ path: '/admin', label: 'Admin' }] : []),
+    // admin page removed; admin actions moved server-side and to profile
   ];
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiSearch, FiMapPin, FiClock, FiPlus, FiEye, FiCheckCircle } from 'react-icons/fi';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -20,6 +20,7 @@ const FoundPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   let user = null;
   try {
@@ -35,6 +36,17 @@ const FoundPage = () => {
   useEffect(() => {
     fetchFoundItems();
   }, []);
+
+  useEffect(() => {
+    const openId = location.state && location.state.openId;
+    if (openId && foundItems.length > 0) {
+      const target = foundItems.find(i => i.id === openId);
+      if (target) {
+        setSelectedItem(target);
+        setIsModalOpen(true);
+      }
+    }
+  }, [location.state, foundItems]);
 
   useEffect(() => {
     if (debouncedSearch.trim()) {

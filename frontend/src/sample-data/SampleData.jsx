@@ -3,7 +3,7 @@ import api from '../apiClient';
 import '../components/lostpage/LostPage.css';
 import profileLogo from '../assets/profileLogo.png';
 
-const SampleData = ({ name = "Item name", date = "Date", title = "Title", location = "Location", description = "No description provided.", image = "https://via.placeholder.com/150" }) => {
+const SampleData = ({ name = "Item name", date = "Date", title = "Title", location = "Location", description = "No description provided.", image = "/src/assets/profilelogo.png" }) => {
   const handleContact = async () => {
     try {
       await api.post('/api/contact', { itemName: name });

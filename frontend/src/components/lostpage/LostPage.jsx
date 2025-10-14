@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiSearch, FiMapPin, FiClock, FiPlus, FiEye, FiFilter } from 'react-icons/fi';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -22,6 +22,7 @@ const LostPage = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   let user = null;
   try {
@@ -37,6 +38,17 @@ const LostPage = () => {
   useEffect(() => {
     fetchLostItems();
   }, []);
+
+  useEffect(() => {
+    const openId = location.state && location.state.openId;
+    if (openId && lostItems.length > 0) {
+      const target = lostItems.find(i => i.id === openId);
+      if (target) {
+        setSelectedItem(target);
+        setIsModalOpen(true);
+      }
+    }
+  }, [location.state, lostItems]);
 
   useEffect(() => {
     if (debouncedSearch.trim()) {

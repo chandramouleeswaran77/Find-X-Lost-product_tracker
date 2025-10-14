@@ -71,7 +71,7 @@ const HomePage = () => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
       className="card cursor-pointer"
-      onClick={() => navigate(`/${type}/${item.id}`)}
+      onClick={() => navigate(`/${type}`, { state: { openId: item.id } })}
     >
       <div className="w-full h-32 bg-gray-100 rounded-xl mb-3 overflow-hidden">
         {item.imageUrl ? (

@@ -1,8 +1,10 @@
 import React from 'react';
 import './Profile.css';
+import { useNavigate } from 'react-router-dom';
 
 const AdminProfile = ({ user }) => {
   if (!user) return null;
+  const navigate = useNavigate();
   return (
     <div className='profile-page'>
       <div className='profile-hero'>
@@ -15,11 +17,14 @@ const AdminProfile = ({ user }) => {
             <p>{user.email}</p>
             <span className='profile-role'>ADMIN</span>
             <div className='profile-actions'>
-              <button className='btn btn-primary' onClick={() => window.location.href='/admin'}>
-                Admin Dashboard
-              </button>
-              <button className='btn btn-ghost' onClick={() => window.location.href='/lost'}>
+              <button className='btn btn-ghost' onClick={() => navigate('/lost')}>
                 View Reports
+              </button>
+              <button className='btn btn-ghost' onClick={() => navigate('/admin/claims')}>
+                Review Claims
+              </button>
+              <button className='btn btn-ghost' onClick={() => navigate('/admin/items')}>
+                Manage Items
               </button>
             </div>
           </div>

@@ -27,7 +27,6 @@ const ClaimModal = ({ isOpen, onClose, item }) => {
       };
 
       await api.post(`/api/found/${item.id}/claim`, claimData);
-      
       showToast.success('Claim request sent to admin for verification!');
       onClose();
       

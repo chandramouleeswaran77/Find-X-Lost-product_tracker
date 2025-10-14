@@ -140,11 +140,45 @@ public class NotificationService {
         createNotification(userId, 
             "Your claim request for item '" + itemTitle + "' has been submitted for verification.",
             itemId, "FOUND", "CLAIM");
+
+        // Also notify admin
+        notifyAdmin("New claim submitted for '" + itemTitle + "'. Please review and approve.");
     }
 
     public void sendClaimApproval(String userId, String itemId, String itemTitle) {
         createNotification(userId, 
             "Your claim for item '" + itemTitle + "' has been approved! Please contact the admin to collect your item.",
             itemId, "FOUND", "CLAIM");
+    }
+
+    public void sendClaimDecisionEmail(String userIdOrEmailOrUsername, boolean approved, String itemTitle) {
+        if (mailSender == null) {
+            return;
+        }
+        try {
+            Optional<User> userOpt = resolveUser(userIdOrEmailOrUsername);
+            if (userOpt.isEmpty()) return;
+            User user = userOpt.get();
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(user.getEmail());
+            mail.setSubject(approved ? "FindX: Your Claim Was Approved" : "FindX: Your Claim Was Declined");
+            mail.setText(
+                ("Hi " + (user.getName() != null ? user.getName() : user.getUsername()) + ",\n\n") +
+                (approved
+                    ? ("Good news! Your claim for the item '" + itemTitle + "' has been approved.\n" +
+                       "Visit your dashboard: http://localhost:5173/found to see the update and collection details.\n\n")
+                    : ("We’re sorry, but your claim for the item '" + itemTitle + "' was declined.\n" +
+                       "You can review the item details here: http://localhost:5173/found and try again if needed.\n\n")) +
+                "Best regards,\nFindX Team"
+            );
+            mailSender.send(mail);
+        } catch (Exception ignored) {}
+    }
+
+    public void notifyAdmin(String message) {
+        // Create an in-app admin notification only (avoid sending emails to admin for every event)
+        try {
+            createNotification("ADMIN_INBOX", message, null, "ADMIN", "ADMIN");
+        } catch (Exception ignored) {}
     }
 }
