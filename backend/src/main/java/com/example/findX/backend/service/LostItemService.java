@@ -64,7 +64,7 @@ public class LostItemService {
         List<FoundItem> foundItems = foundItemRepository.findByClaimedFalse();
         
         for (FoundItem foundItem : foundItems) {
-            if (isMatch(lostItem, foundItem)) {
+            if (isExactKeywordMatch(lostItem, foundItem) || isMatch(lostItem, foundItem)) {
                 // Mark both items as possible match
                 lostItem.setStatus("POSSIBLE_MATCH");
                 lostItem.setMatchedWith(foundItem.getId());
@@ -94,8 +94,17 @@ public class LostItemService {
         }
     }
     
-    private boolean isMatch(LostItem lostItem, FoundItem foundItem) {
-        // Extract keywords from title and description
+            private boolean isMatch(LostItem lostItem, FoundItem foundItem) {
+                // Fast exact name shortcut (case-insensitive, trimmed)
+                if (lostItem.getItem() != null && foundItem.getItem() != null) {
+                    String a = lostItem.getItem().trim();
+                    String b = foundItem.getItem().trim();
+                    if (!a.isEmpty() && a.equalsIgnoreCase(b)) {
+                        return true;
+                    }
+                }
+
+                // Extract keywords from title and description
         Set<String> lostKeywords = extractKeywords(lostItem.getItem() + " " + lostItem.getDescription());
         Set<String> foundKeywords = extractKeywords(foundItem.getItem() + " " + foundItem.getDescription());
         
@@ -122,6 +131,23 @@ public class LostItemService {
         return intersection.size() >= 2 || 
                (intersection.size() >= 1 && partialMatches >= 2) ||
                partialMatches >= 3;
+    }
+
+    private boolean isExactKeywordMatch(LostItem lostItem, FoundItem foundItem) {
+        if (lostItem == null || foundItem == null) return false;
+        String a = lostItem.getItem() != null ? lostItem.getItem().trim().toLowerCase() : "";
+        String b = foundItem.getItem() != null ? foundItem.getItem().trim().toLowerCase() : "";
+        if (!a.isEmpty() && a.equals(b)) return true;
+
+        Set<String> lostKeywords = extractKeywords(lostItem.getItem() + " " + lostItem.getDescription());
+        Set<String> foundKeywords = extractKeywords(foundItem.getItem() + " " + foundItem.getDescription());
+        // Exact keyword overlap: any identical keyword triggers a match
+        for (String kw : lostKeywords) {
+            if (foundKeywords.contains(kw)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private Set<String> extractKeywords(String text) {

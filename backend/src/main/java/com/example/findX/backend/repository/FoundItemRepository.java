@@ -10,4 +10,5 @@ import java.util.List;
 public interface FoundItemRepository extends MongoRepository<FoundItem, String> {
     List<FoundItem> findByClaimedFalse();
     List<FoundItem> findByNameContainingIgnoreCase(String name);
+    List<FoundItem> findByItem(String item);
 }

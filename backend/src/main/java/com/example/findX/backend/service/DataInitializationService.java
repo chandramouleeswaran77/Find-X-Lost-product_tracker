@@ -23,17 +23,21 @@ public class DataInitializationService implements CommandLineRunner {
     
     @Autowired
     private FoundItemRepository foundItemRepository;
+
+    @Autowired
+    private LostItemService lostItemService;
+
+    @Autowired
+    private FoundItemService foundItemService;
     
     @Override
     public void run(String... args) throws Exception {
-        // Initialize sample data if database is empty
-        if (userRepository.count() == 0) {
-            initializeSampleData();
-        }
+        // Always ensure exact-match seed exists (idempotent upsert)
+        initializeSampleData();
     }
     
     private void initializeSampleData() {
-        // Create sample user
+        // Create sample user (idempotent)
         User adminUser = new User();
         adminUser.setUsername("admin");
         adminUser.setName("Admin User");
@@ -42,7 +46,11 @@ public class DataInitializationService implements CommandLineRunner {
         adminUser.setRollNo("ADMIN001");
         adminUser.setRole("ADMIN");
         adminUser.setPictureUrl(null);
-        userRepository.save(adminUser);
+        try {
+            userRepository.findByEmail(adminUser.getEmail()).orElseGet(() -> userRepository.save(adminUser));
+        } catch (Exception e) {
+            userRepository.save(adminUser);
+        }
         
         // Create sample lost items
         LostItem lostItem1 = new LostItem();
@@ -56,7 +64,12 @@ public class DataInitializationService implements CommandLineRunner {
         lostItem1.setReportedBy("admin");
         lostItem1.setCreatedAt(LocalDateTime.now());
         lostItem1.setResolved(false);
-        lostItemRepository.save(lostItem1);
+        lostItem1.setPostedBy(adminUser.getEmail());
+        lostItem1.setContactEmail(adminUser.getEmail());
+        lostItem1.setStatus("OPEN");
+        if (lostItem1.getId() == null) {
+            lostItem1 = lostItemRepository.save(lostItem1);
+        }
         
         LostItem lostItem2 = new LostItem();
         lostItem2.setRollNo("2021002");
@@ -69,7 +82,12 @@ public class DataInitializationService implements CommandLineRunner {
         lostItem2.setReportedBy("admin");
         lostItem2.setCreatedAt(LocalDateTime.now());
         lostItem2.setResolved(false);
-        lostItemRepository.save(lostItem2);
+        lostItem2.setPostedBy(adminUser.getEmail());
+        lostItem2.setContactEmail(adminUser.getEmail());
+        lostItem2.setStatus("OPEN");
+        if (lostItem2.getId() == null) {
+            lostItem2 = lostItemRepository.save(lostItem2);
+        }
         
         LostItem lostItem3 = new LostItem();
         lostItem3.setRollNo("2021003");
@@ -82,7 +100,12 @@ public class DataInitializationService implements CommandLineRunner {
         lostItem3.setReportedBy("admin");
         lostItem3.setCreatedAt(LocalDateTime.now());
         lostItem3.setResolved(false);
-        lostItemRepository.save(lostItem3);
+        lostItem3.setPostedBy(adminUser.getEmail());
+        lostItem3.setContactEmail(adminUser.getEmail());
+        lostItem3.setStatus("OPEN");
+        if (lostItem3.getId() == null) {
+            lostItem3 = lostItemRepository.save(lostItem3);
+        }
         
         // Create sample found items
         FoundItem foundItem1 = new FoundItem();
@@ -96,7 +119,12 @@ public class DataInitializationService implements CommandLineRunner {
         foundItem1.setReportedBy("admin");
         foundItem1.setCreatedAt(LocalDateTime.now());
         foundItem1.setClaimed(false);
-        foundItemRepository.save(foundItem1);
+        foundItem1.setPostedBy(adminUser.getEmail());
+        foundItem1.setContactEmail(adminUser.getEmail());
+        foundItem1.setStatus("OPEN");
+        if (foundItem1.getId() == null) {
+            foundItem1 = foundItemRepository.save(foundItem1);
+        }
         
         FoundItem foundItem2 = new FoundItem();
         foundItem2.setRollNo("2022002");
@@ -109,8 +137,55 @@ public class DataInitializationService implements CommandLineRunner {
         foundItem2.setReportedBy("admin");
         foundItem2.setCreatedAt(LocalDateTime.now());
         foundItem2.setClaimed(false);
-        foundItemRepository.save(foundItem2);
+        foundItem2.setPostedBy(adminUser.getEmail());
+        foundItem2.setContactEmail(adminUser.getEmail());
+        foundItem2.setStatus("OPEN");
+        if (foundItem2.getId() == null) {
+            foundItem2 = foundItemRepository.save(foundItem2);
+        }
+
+        // Add an exact-match pair to exercise matching & email
+        LostItem exactLost = lostItemRepository.findByItem("Blue Bottle").stream().findFirst().orElse(new LostItem());
+        exactLost.setRollNo("2021999");
+        exactLost.setName("Earbuds");
+        exactLost.setItem("Blue Bottle");
+        exactLost.setLocation("Main Gate");
+        exactLost.setDate("2025-10-06");
+        exactLost.setDescription("Blue Bottle with sticker X");
+        exactLost.setImageUrl("https://via.placeholder.com/150");
+        exactLost.setReportedBy(adminUser.getEmail());
+        exactLost.setPostedBy(adminUser.getEmail());
+        exactLost.setContactEmail(adminUser.getEmail());
+        exactLost.setCreatedAt(LocalDateTime.now());
+        exactLost.setResolved(false);
+        exactLost.setStatus("OPEN");
+        exactLost = lostItemRepository.save(exactLost);
+
+        FoundItem exactFound = foundItemRepository.findByItem("Blue Bottle").stream().findFirst().orElse(new FoundItem());
+        exactFound.setRollNo("2022999");
+        exactFound.setName("Bottle");
+        exactFound.setItem("Blue Bottle");
+        exactFound.setLocation("Main Gate");
+        exactFound.setDate("2025-10-06");
+        exactFound.setDescription("Blue Bottle with sticker X");
+        exactFound.setImageUrl("https://via.placeholder.com/150");
+        exactFound.setReportedBy(adminUser.getEmail());
+        exactFound.setPostedBy(adminUser.getEmail());
+        exactFound.setContactEmail(adminUser.getEmail());
+        exactFound.setCreatedAt(LocalDateTime.now());
+        exactFound.setClaimed(false);
+        exactFound.setStatus("OPEN");
+        exactFound = foundItemRepository.save(exactFound);
+
+        // Trigger service-level matching logic (also sends notifications/emails)
+        try {
+            lostItemService.updateLostItem(exactLost);
+            foundItemService.updateFoundItem(exactFound);
+            System.out.println("[Init] Exact-match pair ensured and matching triggered.");
+        } catch (Exception e) {
+            System.out.println("[Init] Matching trigger failed: " + e.getMessage());
+        }
         
-        System.out.println("Sample data initialized successfully!");
+        System.out.println("Sample data ensured successfully!");
     }
 }
