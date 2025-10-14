@@ -17,6 +17,8 @@ public class ContactRequest {
     private String id;
     private String itemName;
     private String itemId;
+    private String itemType; // "lost" or "found"
+    private String itemOwnerId; // User ID of item owner
     private String requesterName;
     private String requesterEmail;
     private String message;

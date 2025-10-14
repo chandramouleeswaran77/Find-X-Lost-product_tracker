@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -53,5 +54,25 @@ public class NotificationController {
             notification.getType()
         );
         return ResponseEntity.ok(created);
+    }
+
+    // Simple test endpoint to verify notifications and email delivery
+    @PostMapping("/test-match")
+    public ResponseEntity<Map<String, Object>> testMatch(@RequestBody Map<String, String> payload) {
+        // Accept identifiers as userId/email/username
+        String lostUser = payload.getOrDefault("lostUser", "");
+        String foundUser = payload.getOrDefault("foundUser", "");
+        String itemTitle = payload.getOrDefault("itemTitle", "Sample Item");
+        String lostItemId = payload.getOrDefault("lostItemId", "lost-test-id");
+        String foundItemId = payload.getOrDefault("foundItemId", "found-test-id");
+
+        notificationService.notifyMatch(lostUser, foundUser, lostItemId, foundItemId, itemTitle);
+        return ResponseEntity.ok(Map.of(
+            "ok", true,
+            "message", "Test match notification dispatched",
+            "lostUser", lostUser,
+            "foundUser", foundUser,
+            "itemTitle", itemTitle
+        ));
     }
 }

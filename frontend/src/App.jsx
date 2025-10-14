@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 import AppLayout from './components/layout/AppLayout.jsx';
 import Login from './components/login/Login.jsx';
 import HomePage from './components/home/HomePage.jsx';
@@ -8,6 +9,7 @@ import ReportLostPage from './components/report-lost-form/ReportLostForm.jsx';
 import ReportFoundForm from './components/report-found-form/ReportFoundForm.jsx';
 import FoundPage from './components/found-page/FoundPage.jsx';
 import ProfileRouter from './components/profile/ProfileRouter.jsx';
+import AdminDashboard from './components/admin/AdminDashboard.jsx';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -74,6 +76,11 @@ const AppRoutes = () => {
             <ProfileRouter />
           </PageTransition>
         } />
+        <Route path="/admin" element={
+          <PageTransition>
+            <AdminDashboard />
+          </PageTransition>
+        } />
       </Routes>
     </AnimatePresence>
   );
@@ -81,11 +88,13 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <AppLayout>
-        <AppRoutes />
-      </AppLayout>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <AppLayout>
+          <AppRoutes />
+        </AppLayout>
+      </Router>
+    </ThemeProvider>
   );
 }
 

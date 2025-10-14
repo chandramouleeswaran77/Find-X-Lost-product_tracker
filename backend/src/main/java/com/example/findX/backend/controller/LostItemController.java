@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lost")
@@ -56,8 +57,10 @@ public class LostItemController {
             lostItem.setLocation(location);
             lostItem.setDate(date);
             lostItem.setDescription(description);
-            lostItem.setReportedBy(user);
-            lostItem.setPostedBy(user);
+            // Prefer stable identifier for notifications: contactEmail -> user -> rollNo
+            String ownerIdentifier = contactEmail != null && !contactEmail.isBlank() ? contactEmail : (user != null && !user.isBlank() ? user : rollNo);
+            lostItem.setReportedBy(ownerIdentifier);
+            lostItem.setPostedBy(ownerIdentifier);
             lostItem.setContactEmail(contactEmail);
             lostItem.setContactPhone(contactPhone);
             lostItem.setStatus("OPEN");
@@ -71,9 +74,10 @@ public class LostItemController {
                 }
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(photo.getInputStream(), filePath);
-                lostItem.setImageUrl("/uploads/lost/" + fileName);
+                // Set full URL for image access
+                lostItem.setImageUrl("http://localhost:8080/uploads/lost/" + fileName);
             } else {
-                lostItem.setImageUrl("https://via.placeholder.com/150");
+                lostItem.setImageUrl(null);
             }
             
             LostItem savedItem = lostItemService.createLostItem(lostItem);
@@ -109,4 +113,18 @@ public class LostItemController {
         }
         return ResponseEntity.notFound().build();
     }
+    
+    @PutMapping("/{id}/resolve")
+    public ResponseEntity<LostItem> resolveLostItem(@PathVariable String id) {
+        Optional<LostItem> itemOpt = lostItemService.getLostItemById(id);
+        if (itemOpt.isPresent()) {
+            LostItem item = itemOpt.get();
+            item.setResolved(true);
+            item.setStatus("CLOSED");
+            LostItem updatedItem = lostItemService.updateLostItem(item);
+            return ResponseEntity.ok(updatedItem);
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
+

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiMapPin, FiClock, FiUser, FiPhone, FiMail, FiMessageCircle, FiShield } from 'react-icons/fi';
+import api from '../../apiClient';
 import CopyButton from './CopyButton';
 import ClaimModal from './ClaimModal';
 import { showToast } from '../ui/Toast';
@@ -8,9 +9,20 @@ import { showToast } from '../ui/Toast';
 const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  
+  // Get logged-in user data
+  const getLoggedInUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem('user'));
+    } catch (err) {
+      return null;
+    }
+  };
+
+  const user = getLoggedInUser();
   const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     message: ''
   });
 
@@ -27,11 +39,26 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Here you would typically send the contact request to the backend
+      // Send message to contact request endpoint
+      await api.post('/api/contact', {
+        itemName: item.item,
+        itemId: item.id,
+        itemType: type,
+        itemOwnerId: item.postedBy,
+        requesterName: contactForm.name,
+        requesterEmail: contactForm.email,
+        message: contactForm.message
+      });
+      
       showToast.success('Message sent successfully!');
       setShowContactForm(false);
-      setContactForm({ name: '', email: '', message: '' });
+      setContactForm({ 
+        name: user?.name || '', 
+        email: user?.email || '', 
+        message: '' 
+      });
     } catch (error) {
+      console.error('Contact error:', error);
       showToast.error('Failed to send message. Please try again.');
     }
   };
@@ -51,15 +78,15 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-100 p-6 rounded-t-2xl">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-6 rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{item.item}</h2>
-                  <p className="text-gray-600 mt-1">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{item.item}</h2>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
                     {type === 'lost' ? 'Lost Item Details' : 'Found Item Details'}
                   </p>
                 </div>
@@ -99,8 +126,8 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                   {/* Item Information */}
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                      <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{item.description}</p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -141,7 +168,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                 {/* Right Column - Contact Information */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h3>
                     
                     {/* Contact Details */}
                     <div className="space-y-4">
@@ -231,11 +258,11 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-white rounded-2xl max-w-md w-full p-6"
+                  className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Send Message</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Send Message</h3>
                     <button
                       onClick={() => setShowContactForm(false)}
                       className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200"
@@ -246,7 +273,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
 
                   <form onSubmit={handleContactSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Your Name
                       </label>
                       <input
@@ -254,13 +281,21 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                         required
                         value={contactForm.name}
                         onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                        readOnly={!!user?.name}
+                        className={`w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
+                          user?.name ? 'bg-gray-50 dark:bg-gray-600 cursor-not-allowed' : ''
+                        }`}
                         placeholder="Enter your name"
                       />
+                      {user?.name && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Auto-filled from your profile
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Your Email
                       </label>
                       <input
@@ -268,13 +303,21 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                         required
                         value={contactForm.email}
                         onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                        readOnly={!!user?.email}
+                        className={`w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
+                          user?.email ? 'bg-gray-50 dark:bg-gray-600 cursor-not-allowed' : ''
+                        }`}
                         placeholder="Enter your email"
                       />
+                      {user?.email && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Auto-filled from your profile
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Message
                       </label>
                       <textarea
@@ -282,7 +325,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                         rows={4}
                         value={contactForm.message}
                         onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
+                        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
                         placeholder="Enter your message..."
                       />
                     </div>

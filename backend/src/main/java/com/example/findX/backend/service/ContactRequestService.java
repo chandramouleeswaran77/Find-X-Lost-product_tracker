@@ -15,10 +15,36 @@ public class ContactRequestService {
     @Autowired
     private ContactRequestRepository contactRequestRepository;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     public ContactRequest createContactRequest(ContactRequest contactRequest) {
         contactRequest.setCreatedAt(LocalDateTime.now());
         contactRequest.setProcessed(false);
-        return contactRequestRepository.save(contactRequest);
+        
+        // Save the contact request
+        ContactRequest saved = contactRequestRepository.save(contactRequest);
+        
+        // Create notification for item owner
+        if (contactRequest.getItemOwnerId() != null) {
+            String message = String.format(
+                "%s sent you a message about your %s item '%s': %s",
+                contactRequest.getRequesterName(),
+                contactRequest.getItemType(),
+                contactRequest.getItemName(),
+                contactRequest.getMessage()
+            );
+            
+            notificationService.createNotification(
+                contactRequest.getItemOwnerId(),
+                message,
+                contactRequest.getItemId(),
+                contactRequest.getItemType().toUpperCase(),
+                "MESSAGE"
+            );
+        }
+        
+        return saved;
     }
     
     public List<ContactRequest> getAllContactRequests() {

@@ -15,8 +15,12 @@ const AdminProfile = ({ user }) => {
             <p>{user.email}</p>
             <span className='profile-role'>ADMIN</span>
             <div className='profile-actions'>
-              <button className='btn btn-primary'>New Announcement</button>
-              <button className='btn btn-ghost'>Generate Report</button>
+              <button className='btn btn-primary' onClick={() => window.location.href='/admin'}>
+                Admin Dashboard
+              </button>
+              <button className='btn btn-ghost' onClick={() => window.location.href='/lost'}>
+                View Reports
+              </button>
             </div>
           </div>
         </div>

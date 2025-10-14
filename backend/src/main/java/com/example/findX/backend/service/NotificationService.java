@@ -24,6 +24,31 @@ public class NotificationService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
+    /**
+     * Resolve a user by multiple possible identifiers: Mongo _id, email, or username
+     */
+    private Optional<User> resolveUser(String idOrEmailOrUsername) {
+        if (idOrEmailOrUsername == null || idOrEmailOrUsername.isBlank()) {
+            return Optional.empty();
+        }
+        // Try by Mongo _id
+        try {
+            Optional<User> byId = userRepository.findById(idOrEmailOrUsername);
+            if (byId.isPresent()) return byId;
+        } catch (Exception ignored) {}
+        // Try by email
+        try {
+            Optional<User> byEmail = userRepository.findByEmail(idOrEmailOrUsername);
+            if (byEmail.isPresent()) return byEmail;
+        } catch (Exception ignored) {}
+        // Try by username
+        try {
+            Optional<User> byUsername = userRepository.findByUsername(idOrEmailOrUsername);
+            if (byUsername.isPresent()) return byUsername;
+        } catch (Exception ignored) {}
+        return Optional.empty();
+    }
+
     public Notification createNotification(String userId, String message, String itemId, String itemType, String type) {
         Notification notification = new Notification();
         notification.setUserId(userId);
@@ -32,6 +57,11 @@ public class NotificationService {
         notification.setItemType(itemType);
         notification.setType(type);
         notification.setRead(false);
+        try {
+            // Set createdAt if the model supports it
+            java.lang.reflect.Method setter = notification.getClass().getMethod("setCreatedAt", java.time.LocalDateTime.class);
+            setter.invoke(notification, java.time.LocalDateTime.now());
+        } catch (Exception ignored) {}
         return notificationRepository.save(notification);
     }
 
@@ -77,8 +107,8 @@ public class NotificationService {
         }
 
         try {
-            Optional<User> lostUser = userRepository.findById(lostUserId);
-            Optional<User> foundUser = userRepository.findById(foundUserId);
+            Optional<User> lostUser = resolveUser(lostUserId);
+            Optional<User> foundUser = resolveUser(foundUserId);
 
             if (lostUser.isPresent() && foundUser.isPresent()) {
                 // Email to lost item owner

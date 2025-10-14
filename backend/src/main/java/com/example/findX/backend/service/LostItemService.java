@@ -103,8 +103,25 @@ public class LostItemService {
         Set<String> intersection = new HashSet<>(lostKeywords);
         intersection.retainAll(foundKeywords);
         
-        // Consider it a match if at least 2 keywords overlap
-        return intersection.size() >= 2;
+        // Enhanced matching: Consider partial matches as well
+        int partialMatches = 0;
+        for (String lostKeyword : lostKeywords) {
+            for (String foundKeyword : foundKeywords) {
+                // Check for partial string similarity (e.g., "phone" matches "iphone")
+                if (lostKeyword.contains(foundKeyword) || foundKeyword.contains(lostKeyword)) {
+                    partialMatches++;
+                    break;
+                }
+            }
+        }
+        
+        // Consider it a match if:
+        // - At least 2 exact keyword overlaps, OR
+        // - At least 1 exact match + 2 partial matches, OR
+        // - At least 3 partial matches for longer keywords
+        return intersection.size() >= 2 || 
+               (intersection.size() >= 1 && partialMatches >= 2) ||
+               partialMatches >= 3;
     }
     
     private Set<String> extractKeywords(String text) {
@@ -118,13 +135,26 @@ public class LostItemService {
             "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by",
             "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did",
             "will", "would", "could", "should", "may", "might", "must", "can", "this", "that", "these", "those",
-            "i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them", "my", "your", "his", "her", "its", "our", "their"
+            "i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them", "my", "your", "his", "her", "its", "our", "their",
+            "lost", "found", "item", "thing"
         ));
         
         Set<String> keywords = new HashSet<>();
         for (String word : words) {
             if (word.length() > 2 && !stopWords.contains(word)) {
                 keywords.add(word);
+                // Also add common abbreviations/variations
+                if (word.equals("mobile") || word.equals("cellphone")) {
+                    keywords.add("phone");
+                } else if (word.equals("phone") || word.equals("cellphone")) {
+                    keywords.add("mobile");
+                } else if (word.equals("pods") || word.equals("earbuds")) {
+                    keywords.add("airpods");
+                    keywords.add("earphones");
+                } else if (word.equals("wallet") || word.equals("purse")) {
+                    keywords.add("wallet");
+                    keywords.add("purse");
+                }
             }
         }
         

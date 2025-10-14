@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiUpload, FiX, FiUser, FiMail, FiPhone } from 'react-icons/fi';
+import { FiUpload, FiX, FiMail, FiPhone } from 'react-icons/fi';
 import api from '../../apiClient';
 import { showToast } from '../ui/Toast';
 import './ReportForm.css';
@@ -35,7 +35,7 @@ const ReportForm = ({ type = 'lost' }) => {
     }
   }, []);
 
-  // Auto-focus on item name field when component mounts
+  // Auto-focus on item name field
   useEffect(() => {
     const itemInput = document.querySelector('input[placeholder*="What item"]');
     if (itemInput) {
@@ -67,7 +67,7 @@ const ReportForm = ({ type = 'lost' }) => {
     setIsLoading(true);
     setError(null);
     setUploadProgress(0);
-    
+
     try {
       const formData = new FormData();
       formData.append('rollNo', rollNo);
@@ -79,18 +79,18 @@ const ReportForm = ({ type = 'lost' }) => {
       formData.append('contactEmail', contactEmail);
       formData.append('contactPhone', contactPhone);
       formData.append('user', name);
-      
+
       if (photo) {
         formData.append('photo', photo);
       }
 
       const endpoint = type === 'lost' ? '/api/lost' : '/api/found';
       const response = await api.post(endpoint, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
           setUploadProgress(progress);
         },
       });
@@ -123,7 +123,7 @@ const ReportForm = ({ type = 'lost' }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-light py-12">
+    <div className="min-h-screen bg-gradient-light py-12 dark:bg-gray-900">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -132,10 +132,10 @@ const ReportForm = ({ type = 'lost' }) => {
           className="card"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Report {type === 'lost' ? 'Lost' : 'Found'} Item
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Help our community by reporting a {type === 'lost' ? 'lost' : 'found'} item
             </p>
           </div>
@@ -144,7 +144,7 @@ const ReportForm = ({ type = 'lost' }) => {
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Roll Number
                 </label>
                 <input
@@ -153,11 +153,12 @@ const ReportForm = ({ type = 'lost' }) => {
                   value={rollNo}
                   onChange={(e) => setRollNo(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Your Name *
                 </label>
                 <input
@@ -165,21 +166,24 @@ const ReportForm = ({ type = 'lost' }) => {
                   placeholder="Enter your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  disabled={isLoading || name} // Make read-only if auto-filled
+                  readOnly={!!name}
+                  disabled={isLoading}
                   required
-                  className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
-                    name ? 'bg-gray-50 text-gray-600' : ''
+                  className={`w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
+                    name ? 'bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed' : ''
                   }`}
                 />
                 {name && (
-                  <p className="text-xs text-gray-500 mt-1">Auto-filled from your profile</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Auto-filled from your profile
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Item Information */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Item Name *
               </label>
               <input
@@ -189,13 +193,13 @@ const ReportForm = ({ type = 'lost' }) => {
                 onChange={(e) => setItem(e.target.value)}
                 disabled={isLoading}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Location
                 </label>
                 <input
@@ -204,11 +208,11 @@ const ReportForm = ({ type = 'lost' }) => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Date
                 </label>
                 <input
@@ -216,14 +220,14 @@ const ReportForm = ({ type = 'lost' }) => {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Description *
               </label>
               <textarea
@@ -233,37 +237,38 @@ const ReportForm = ({ type = 'lost' }) => {
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isLoading}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
               />
             </div>
 
             {/* Contact Information */}
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiMail className="inline w-4 h-4 mr-2" />
-                    Email
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <FiMail className="inline w-4 h-4 mr-2" /> Email
                   </label>
                   <input
                     type="email"
                     placeholder="your.email@example.com"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    disabled={isLoading || contactEmail} // Make read-only if auto-filled
-                    className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
-                      contactEmail ? 'bg-gray-50 text-gray-600' : ''
+                    readOnly={!!contactEmail}
+                    disabled={isLoading}
+                    className={`w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
+                      contactEmail ? 'bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed' : ''
                     }`}
                   />
                   {contactEmail && (
-                    <p className="text-xs text-gray-500 mt-1">Auto-filled from your profile</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Auto-filled from your profile
+                    </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiPhone className="inline w-4 h-4 mr-2" />
-                    Phone Number
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <FiPhone className="inline w-4 h-4 mr-2" /> Phone Number
                   </label>
                   <input
                     type="tel"
@@ -271,7 +276,7 @@ const ReportForm = ({ type = 'lost' }) => {
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
                     disabled={isLoading}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
               </div>
@@ -279,11 +284,11 @@ const ReportForm = ({ type = 'lost' }) => {
 
             {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <FiUpload className="inline w-4 h-4 mr-2" />
                 Photo (Optional)
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-400 transition-colors duration-200">
+              <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-primary-400 dark:hover:border-primary-500 transition-colors duration-200">
                 {photoPreview ? (
                   <div className="relative">
                     <img
@@ -301,9 +306,9 @@ const ReportForm = ({ type = 'lost' }) => {
                   </div>
                 ) : (
                   <div>
-                    <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-2">Click to upload or drag and drop</p>
-                    <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    <FiUpload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                    <p className="text-gray-600 dark:text-gray-300 mb-2">Click to upload or drag and drop</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
                   </div>
                 )}
                 <input
@@ -328,12 +333,12 @@ const ReportForm = ({ type = 'lost' }) => {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="text-red-600 text-center">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Buttons */}
             <div className="flex space-x-4 pt-6">
               <button
                 type="button"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiSearch, FiMapPin, FiClock, FiPlus, FiEye, FiCheckCircle } from 'react-icons/fi';
+import { useDebounce } from '../../hooks/useDebounce';
 import api from '../../apiClient';
 import SkeletonCard from '../common/SkeletonCard';
 import ItemDetailsModal from '../common/ItemDetailsModal';
@@ -10,6 +11,7 @@ import './FoundPage.css';
 
 const FoundPage = () => {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [foundItems, setFoundItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [error, setError] = useState(null);
@@ -35,12 +37,20 @@ const FoundPage = () => {
   }, []);
 
   useEffect(() => {
-    if (search.trim()) {
-      handleSearch();
+    if (debouncedSearch.trim()) {
+      handleSearch(debouncedSearch);
     } else {
       setFilteredItems(foundItems);
+      setSearchLoading(false);
     }
-  }, [search, foundItems]);
+  }, [debouncedSearch, foundItems]);
+
+  useEffect(() => {
+    // Set search loading when user starts typing
+    if (search.trim()) {
+      setSearchLoading(true);
+    }
+  }, [search]);
 
   const fetchFoundItems = async () => {
     try {
@@ -61,24 +71,34 @@ const FoundPage = () => {
     }
   };
 
-  const handleSearch = async () => {
-    if (!search.trim()) {
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm.trim()) {
       setFilteredItems(foundItems);
+      setSearchLoading(false);
       return;
     }
 
     try {
       setSearchLoading(true);
-      const response = await api.get(`/api/found/search?q=${encodeURIComponent(search)}`);
+      const response = await api.get(`/api/found/search?q=${encodeURIComponent(searchTerm)}`);
       setFilteredItems(response.data || []);
     } catch (err) {
       console.error('Search error:', err);
-      // Fallback to client-side filtering
-      const filtered = foundItems.filter((item) =>
-        item.item?.toLowerCase().includes(search.toLowerCase()) ||
-        item.description?.toLowerCase().includes(search.toLowerCase()) ||
-        item.location?.toLowerCase().includes(search.toLowerCase())
-      );
+      // Fallback to client-side filtering with partial matching
+      const searchLower = searchTerm.toLowerCase();
+      const filtered = foundItems.filter((item) => {
+        const itemName = item.item?.toLowerCase() || '';
+        const itemDesc = item.description?.toLowerCase() || '';
+        const itemLoc = item.location?.toLowerCase() || '';
+        
+        // Check if any word in the search term partially matches
+        const searchWords = searchLower.split(/\s+/);
+        return searchWords.some(word => 
+          itemName.includes(word) ||
+          itemDesc.includes(word) ||
+          itemLoc.includes(word)
+        );
+      });
       setFilteredItems(filtered);
     } finally {
       setSearchLoading(false);
@@ -123,20 +143,20 @@ const FoundPage = () => {
       
       <div className="space-y-3">
         <div>
-          <h3 className="font-semibold text-gray-900 text-lg mb-1 line-clamp-1">
+          <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-1 line-clamp-1">
             {item.item}
           </h3>
-          <p className="text-gray-600 text-sm line-clamp-2">
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
             {item.description}
           </p>
         </div>
         
         <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <FiMapPin className="w-4 h-4" />
             <span className="line-clamp-1">{item.location}</span>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <FiClock className="w-4 h-4" />
             <span>{formatDate(item.date)}</span>
           </div>
@@ -152,7 +172,7 @@ const FoundPage = () => {
           }`}>
             {item.status || 'OPEN'}
           </span>
-          <button className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center space-x-1">
+          <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium flex items-center space-x-1">
             <span>View Details</span>
             <FiEye className="w-4 h-4" />
           </button>
@@ -164,7 +184,7 @@ const FoundPage = () => {
   return (
     <div className="min-h-screen bg-gradient-light">
       {/* Header Section */}
-      <section className="bg-white border-b border-gray-100">
+      <section className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -172,10 +192,10 @@ const FoundPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Found Items
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto mb-8">
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto mb-8">
               Browse through found items reported by our community members. 
               Help return found belongings to their rightful owners.
             </p>
@@ -183,13 +203,13 @@ const FoundPage = () => {
             {/* Search and Actions */}
             <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
               <div className="relative flex-1">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search found items..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 />
                 {searchLoading && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -251,10 +271,10 @@ const FoundPage = () => {
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FiCheckCircle className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {search ? 'No items found' : 'No found items yet'}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 {search 
                   ? 'Try adjusting your search terms or browse all items.'
                   : 'Be the first to report a found item in your community.'

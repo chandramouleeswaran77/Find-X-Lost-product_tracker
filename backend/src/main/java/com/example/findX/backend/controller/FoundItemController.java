@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/found")
@@ -57,8 +58,10 @@ public class FoundItemController {
             foundItem.setLocation(location);
             foundItem.setDate(date);
             foundItem.setDescription(description);
-            foundItem.setReportedBy(user);
-            foundItem.setPostedBy(user);
+            // Prefer stable identifier for notifications: contactEmail -> user -> rollNo
+            String ownerIdentifier = contactEmail != null && !contactEmail.isBlank() ? contactEmail : (user != null && !user.isBlank() ? user : rollNo);
+            foundItem.setReportedBy(ownerIdentifier);
+            foundItem.setPostedBy(ownerIdentifier);
             foundItem.setContactEmail(contactEmail);
             foundItem.setContactPhone(contactPhone);
             foundItem.setStatus("OPEN");
@@ -72,9 +75,10 @@ public class FoundItemController {
                 }
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(photo.getInputStream(), filePath);
-                foundItem.setImageUrl("/uploads/found/" + fileName);
+                // Set full URL for image access
+                foundItem.setImageUrl("http://localhost:8080/uploads/found/" + fileName);
             } else {
-                foundItem.setImageUrl("https://via.placeholder.com/150");
+                foundItem.setImageUrl(null);
             }
             
             FoundItem savedItem = foundItemService.createFoundItem(foundItem);
@@ -130,4 +134,18 @@ public class FoundItemController {
             return ResponseEntity.badRequest().body("Failed to process claim: " + e.getMessage());
         }
     }
+    
+    @PutMapping("/{id}/resolve")
+    public ResponseEntity<FoundItem> resolveFoundItem(@PathVariable String id) {
+        Optional<FoundItem> itemOpt = foundItemService.getFoundItemById(id);
+        if (itemOpt.isPresent()) {
+            FoundItem item = itemOpt.get();
+            item.setClaimed(true);
+            item.setStatus("CLOSED");
+            FoundItem updatedItem = foundItemService.updateFoundItem(item);
+            return ResponseEntity.ok(updatedItem);
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
+
