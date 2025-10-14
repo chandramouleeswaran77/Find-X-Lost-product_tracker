@@ -92,7 +92,7 @@ const Footer = () => {
           </div>
 
           {/* Support */}
-          <div>
+          {/* <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -107,7 +107,7 @@ const Footer = () => {
                 <p className="text-gray-600 text-sm">FAQ</p>
               </div>
             </motion.div>
-          </div>
+          </div> */}
 
           {/* Contact */}
           <div>
@@ -140,7 +140,7 @@ const Footer = () => {
             </motion.div>
           </div>
         </div>
-
+        
         {/* Bottom Section */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -148,13 +148,13 @@ const Footer = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-12 pt-8 border-t border-gray-200"
         >
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-600 text-sm">
+          <div className="flex flex-col md:flex-row justify-between items-center align-middle space-y-4 md:space-y-0">
+            {/* <p className="text-gray-600 text-sm">
               © {currentYear} FindX. All rights reserved.
-            </p>
-            <p className="text-gray-500 text-xs">
+            </p> */}
+            {/* <p className="text-gray-500 text-xs">
               Made with ❤️ for the community
-            </p>
+            </p> */}
           </div>
         </motion.div>
       </div>

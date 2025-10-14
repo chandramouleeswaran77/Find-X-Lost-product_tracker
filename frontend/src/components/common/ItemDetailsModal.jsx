@@ -102,7 +102,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left Column - Item Details */}
-                <div className="space-y-6">
+                <div className="space-y-8 px-2">
                   {/* Image */}
                   <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden">
                     {item.imageUrl ? (
@@ -171,7 +171,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h3>
                     
                     {/* Contact Details */}
-                    <div className="space-y-4">
+                    <div className="space-y-8">
                       {item.contactPhone && (
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                           <div className="flex items-center space-x-3">
@@ -215,7 +215,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
 
                     {/* Contact Actions */}
                     <div className="space-y-3 pt-4">
-                      <motion.button
+                      {/* <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setShowContactForm(true)}
@@ -223,7 +223,7 @@ const ItemDetailsModal = ({ isOpen, onClose, item, type }) => {
                       >
                         <FiMessageCircle className="w-5 h-5" />
                         <span>Send Message</span>
-                      </motion.button>
+                      </motion.button> */}
                       
                       {/* Claim Button - Only for found items */}
                       {type === 'found' && item.status !== 'CLAIMED' && (

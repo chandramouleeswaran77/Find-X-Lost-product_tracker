@@ -15,8 +15,8 @@ const StudentProfile = ({ user }) => {
             <p>{user.email}</p>
             <span className='profile-role'>STUDENT</span>
             <div className='profile-actions'>
-              <button className='btn btn-primary' onClick={() => window.location.href='/report-lost'}>Report Lost</button>
-              <button className='btn btn-ghost' onClick={() => window.location.href='/report-found'}>Report Found</button>
+              {/* <button className='btn btn-primary' onClick={() => window.location.href='/report-lost'}>Report Lost</button>
+              <button className='btn btn-ghost' onClick={() => window.location.href='/report-found'}>Report Found</button> */}
             </div>
           </div>
         </div>

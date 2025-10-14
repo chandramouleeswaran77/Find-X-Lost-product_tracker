@@ -21,7 +21,7 @@ const ReportFoundForm = () => {
       <h1>Report Found Item</h1>
       <ReportForm type="found" />
       <br /><br />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

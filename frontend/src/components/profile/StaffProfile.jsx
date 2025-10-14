@@ -15,8 +15,8 @@ const StaffProfile = ({ user }) => {
             <p>{user.email}</p>
             <span className='profile-role'>STAFF</span>
             <div className='profile-actions'>
-              <button className='btn btn-primary'>Verify Reports</button>
-              <button className='btn btn-ghost'>Contact Requests</button>
+              {/* <button className='btn btn-primary'>Verify Reports</button>
+              <button className='btn btn-ghost'>Contact Requests</button> */}
             </div>
           </div>
         </div>
