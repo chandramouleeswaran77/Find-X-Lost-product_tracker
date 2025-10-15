@@ -97,7 +97,7 @@ function Navbar() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">FX</span>
               </div>
-              <span className="text-xl text-black font-bold bg-clip-text text-transparent dark:text-white">
+              <span className="text-xl text-black font-bold bg-clip-text dark:text-white">
                 FindX
               </span>
             </NavLink>
