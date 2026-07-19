@@ -1,261 +1,215 @@
-# FindX - Lost & Found Platform
+# 🔍 FindX — Lost & Found Management Platform
 
-A modern, community-driven lost and found platform built with React (Vite) frontend and Spring Boot backend.
+[![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=black&style=flat-square)](https://react.dev/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?logo=springboot&logoColor=white&style=flat-square)](https://spring.io/projects/spring-boot)
+[![MongoDB](https://img.shields.io/badge/MongoDB-database-47A248?logo=mongodb&logoColor=white&style=flat-square)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-6.3-646CFF?logo=vite&logoColor=white&style=flat-square)](https://vitejs.dev/)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-black?logo=jsonwebtokens&logoColor=white&style=flat-square)](https://jwt.io/)
+[![Google OAuth](https://img.shields.io/badge/Google_OAuth-2.0-4285F4?logo=google&logoColor=white&style=flat-square)](https://developers.google.com/identity/protocols/oauth2)
 
-## 🚀 Features
-
-### Frontend (React + Vite)
-- **Modern UI**: Light gradient theme with Tailwind CSS
-- **Responsive Design**: Mobile-first approach with beautiful animations
-- **Skeleton Loading**: Shimmer animations for better UX
-- **Page Transitions**: Smooth Framer Motion animations
-- **Search & Filter**: Real-time search with backend integration
-- **Contact Flow**: Copy-to-clipboard functionality for phone/email
-- **Drag & Drop**: Image upload with progress indicators
-- **Toast Notifications**: User feedback for all actions
-
-### Backend (Spring Boot + MongoDB)
-- **RESTful API**: Clean endpoints for all operations
-- **User Authentication**: JWT-based security with Google OAuth
-- **File Upload**: Image handling for lost/found items
-- **Search Functionality**: Text-based search across items
-- **Contact System**: Message handling between users
-- **Matching Logic**: Simple text-based item matching
-- **CORS Support**: Configured for localhost development
-
-## 🛠️ Tech Stack
-
-### Frontend
-- React 19.1.1
-- Vite 6.3.5
-- Tailwind CSS 3.x
-- Framer Motion
-- React Router DOM
-- React Icons
-- React Toastify
-- Axios
-
-### Backend
-- Spring Boot 3.x
-- MongoDB
-- Spring Security
-- JWT Authentication
-- Google OAuth 2.0
-- Maven
-
-## 📋 Prerequisites
-
-- Node.js 18+ and npm
-- Java 17+
-- MongoDB
-- Git
-
-## 🚀 Quick Start
-
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd Find_X
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-
-# Install dependencies (if needed)
-# Maven will handle dependencies automatically
-
-# Start MongoDB (make sure it's running on localhost:27017)
-# On Windows: net start MongoDB
-# On macOS: brew services start mongodb-community
-# On Linux: sudo systemctl start mongod
-
-# Run the Spring Boot application
-./mvnw spring-boot:run
-# Or on Windows: mvnw.cmd spring-boot:run
-```
-
-The backend will start on `http://localhost:8080`
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-```
-
-The frontend will start on `http://localhost:5173`
-
-## 🔧 Configuration
-
-### Backend Configuration
-Update `backend/src/main/resources/application.properties`:
-
-```properties
-# MongoDB Configuration
-spring.data.mongodb.uri=mongodb://localhost:27017/findx
-
-# Google OAuth (update with your credentials)
-google.oauth.client-id=your-google-client-id
-
-# JWT Secret (change in production)
-jwt.secret=your-secret-key-32-bytes-minimum
-```
-
-### Frontend Configuration
-Update `frontend/src/main.jsx` with your Google OAuth client ID:
-
-```javascript
-<GoogleOAuthProvider clientId="your-google-client-id">
-```
-
-## 🧪 Testing
-
-### Manual Testing Steps
-
-1. **Authentication Flow**
-   - Visit `http://localhost:5173`
-   - Click "Login" and authenticate with Google
-   - Verify user avatar appears in navbar
-
-2. **Lost Items Page**
-   - Navigate to `/lost`
-   - Verify skeleton loading appears initially
-   - Test search functionality
-   - Click on an item to view details modal
-
-3. **Found Items Page**
-   - Navigate to `/found`
-   - Test search and filtering
-   - Verify responsive grid layout
-
-4. **Report Forms**
-   - Navigate to `/report-lost` or `/report-found`
-   - Test drag & drop image upload
-   - Verify form validation
-   - Submit form and check success message
-
-5. **Contact Flow**
-   - Click on any item to open details modal
-   - Test copy-to-clipboard for phone/email
-   - Send a test message through contact form
-
-6. **Search & Navigation**
-   - Test search across lost and found items
-   - Verify page transitions are smooth
-   - Test mobile responsive design
-
-### API Endpoints
-
-#### Authentication
-- `POST /api/auth/google` - Google OAuth login
-- `GET /api/auth/me` - Get current user
-
-#### Items
-- `GET /api/lost` - Get all lost items
-- `GET /api/found` - Get all found items
-- `GET /api/lost/search?q=query` - Search lost items
-- `GET /api/found/search?q=query` - Search found items
-- `GET /api/items/search?q=query&type=lost|found` - General search
-- `GET /api/lost/{id}` - Get lost item details
-- `GET /api/found/{id}` - Get found item details
-- `POST /api/lost` - Create lost item
-- `POST /api/found` - Create found item
-
-#### Contact
-- `POST /api/contact` - Send contact message
-
-## 🎨 Design System
-
-### Colors
-- **Primary**: #2563eb (Blue)
-- **Accent**: #60a5fa (Light Blue)
-- **Muted**: #f1f5f9 (Light Gray)
-
-### Components
-- **Buttons**: Rounded-2xl with hover animations
-- **Cards**: Subtle shadows with hover effects
-- **Forms**: Clean inputs with focus states
-- **Modals**: Smooth animations with backdrop
-
-## 📱 Responsive Breakpoints
-
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1024px
-- **Desktop**: > 1024px
-
-## 🔒 Security Features
-
-- JWT token authentication
-- CORS configuration for localhost
-- Input validation on forms
-- Secure file upload handling
-
-## 🚀 Deployment
-
-### Frontend (Vercel/Netlify)
-```bash
-cd frontend
-npm run build
-# Deploy the 'dist' folder
-```
-
-### Backend (Heroku/Railway)
-```bash
-cd backend
-# Configure MongoDB Atlas for production
-# Update application.properties with production values
-# Deploy using your preferred platform
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **MongoDB Connection Error**
-   - Ensure MongoDB is running on localhost:27017
-   - Check if the database 'findx' exists
-
-2. **CORS Errors**
-   - Verify backend is running on port 8080
-   - Check CORS configuration in CorsConfig.java
-
-3. **Google OAuth Issues**
-   - Verify client ID is correct
-   - Check authorized redirect URIs in Google Console
-
-4. **Build Errors**
-   - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
-   - Check Node.js version compatibility
-
-### Support
-
-For issues and questions:
-- Check the GitHub issues page
-- Review the troubleshooting section
-- Contact the development team
+**FindX** is a modern, responsive, and secure lost-and-found community platform designed to connect people who have lost items with those who have found them. The application uses a Spring Boot REST API for a robust backend and a React (Vite) Single Page Application for a rich, animated frontend, supported by a standalone MongoDB database.
 
 ---
 
-**Happy Coding! 🎉**
+## 🏗️ System Architecture
 
+```
+                      ┌────────────────────────────────────────┐
+                      │            React Client (Vite)         │
+                      │  - Google OAuth / JWT Session State    │
+                      │  - Framer Motion Layouts & Animations   │
+                      │  - Responsive Tailwind CSS (Dark/Light)│
+                      └───────────────────┬────────────────────┘
+                                          │
+                        REST API Requests │ JWT Authorization Header
+                        (Axios Interceptor)│
+                                          ▼
+                      ┌────────────────────────────────────────┐
+                      │          Spring Boot Backend           │
+                      │  - JWT & Google Token Validation       │
+                      │  - File Upload Handler (uploads/)       │
+                      │  - Notification & Search Services      │
+                      │  - Monthly PDF Reporting (OpenPDF)     │
+                      └───────────────────┬────────────────────┘
+                                          │
+                        Database Queries  │
+                        (Spring Data)     │
+                                          ▼
+                      ┌────────────────────────────────────────┐
+                      │            MongoDB Database            │
+                      │  Collections: users, lost_items,       │
+                      │  found_items, notifications, contact   │
+                      └────────────────────────────────────────┘
+```
 
-//initial 
+---
+
+## 💡 Key Features
+
+### 💻 React Frontend
+*   **Dual Theme Support**: Beautiful dark and light modes with seamless global class toggling and persistent browser-state retention.
+*   **Aesthetic User Interface**: Sleek gradient backdrops, interactive cards, micro-animations using **Framer Motion**, and skeleton loading state shimmers to ensure optimal UX.
+*   **Image Management**: Dynamic drag-and-drop file upload zone showing live progress feedback.
+*   **Contextual Modals**: Detailed item overlays featuring one-click contact details copying and direct message submission forms.
+
+### ⚙️ Spring Boot Backend
+*   **Automated Match Engine**: Scans item titles and descriptions dynamically to find keyword overlaps and notify users immediately.
+*   **Role-Based Access Control**: Standard users manage their listings and notifications, while Administrators gain access to a dedicated dashboard to perform CRUD actions on all items and generate PDF analytics reports.
+*   **Secure Authentication**: JWT-based session security integrated with Google OAuth for single sign-on.
+*   **Static Resource Serving**: Safe and reliable local image saving and resource routing, resolving full URLs for cross-origin frontend consumption.
+
+---
+
+## 🧪 Deep-Dive: Core Technical Showcases
+
+### 1. The Keyword Matching Algorithm
+To avoid simple, rigid database queries, FindX incorporates a custom matching algorithm that runs whenever a new lost or found item is reported:
+*   **Tokenization & Normalization**: The title and description of the new item are converted to lowercase, stripped of special characters, and split into individual keywords.
+*   **Stop-word Filtering**: Common filler words (e.g., *the*, *a*, *with*, *for*) are removed to extract core tokens.
+*   **Similarity Matching Rules**: The system queries existing database records and checks for matches:
+    *   *Exact Matches*: The system looks for direct overlaps between item names.
+    *   *Partial/Fuzzy Matches*: Evaluates partial keyword overlaps (e.g., "AirPods Pro" matches "AirPods").
+    *   *Synonym Handling*: Handles standard equivalents (e.g., mapping `phone` ↔ `mobile` and `pods` ↔ `airpods`).
+*   **Bi-directional Notification**: Once a match is confirmed, the status of both items is updated to `POSSIBLE_MATCH`, and persistent in-app notifications are written to the database for **both** the owner and the finder.
+
+### 2. Spring Security & JWT Token Verification
+Secure endpoints are guarded using a custom security filter chain:
+1.  **Google OAuth Sign-In**: The React client obtains an authorization token from Google and sends it to the backend (`POST /api/auth/google`).
+2.  **JWT Token Generation**: The backend validates the Google token. Upon success, it fetches/registers the user record in MongoDB and issues a signed JWT token containing the user's ID, email, and roles.
+3.  **Request Authentication**: Submitting forms, updating items, or viewing notifications requires the React client to pass the JWT in the `Authorization: Bearer <token>` header. A `JwtAuthenticationFilter` intercepts the request, verifies the signature, and populates the Spring Security Context.
+
+### 3. Static Media Streaming Configuration
+FindX serves uploaded images locally. The backend maps filesystem paths to public HTTP endpoints:
+*   **Storage Location**: Uploads are saved inside isolated `uploads/lost/` and `uploads/found/` directories.
+*   **Resource Mapping**: A customized `WebMvcConfigurer` configures Spring Boot to serve directories statically:
+    ```java
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
+    }
+    ```
+*   **Absolute Paths**: When an item is saved, the backend constructs and stores the absolute URL (`http://localhost:8080/uploads/...`) in MongoDB, ensuring the frontend can load images directly across origins.
+
+### 4. Admin Monthly PDF Report Engine
+The system uses the **OpenPDF** library to generate formal summaries for platform administrators:
+*   **Metrics Aggregation**: Resolves total user registrations, open reports, resolved cases, and active notifications.
+*   **Dynamic PDF Generation**: The `ReportService` writes a styled document on-the-fly, creating title headings, structured tables, and key performance metric grids.
+*   **Streamed Responses**: The generated PDF is written directly to the HTTP response stream with `Content-Type: application/pdf`, letting the administrator download or view the report directly in their browser.
+
+---
+
+## 📍 API Reference
+
+### Authentication Endpoints
+| HTTP Method | Route | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/api/auth/google` | Exchange Google OAuth Token for JWT | No |
+| `GET` | `/api/auth/me` | Retrieve profile details of logged-in user | Yes |
+
+### Item Management
+| HTTP Method | Route | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/lost` | Fetch all open lost items | No |
+| `GET` | `/api/found` | Fetch all open found items | No |
+| `GET` | `/api/lost/{id}` | Retrieve details of a specific lost item | No |
+| `GET` | `/api/found/{id}` | Retrieve details of a specific found item | No |
+| `POST` | `/api/lost` | File a new lost item report (multipart/form-data) | Yes |
+| `POST` | `/api/found` | File a new found item report (multipart/form-data) | Yes |
+| `PUT` | `/api/lost/{id}` | Modify a lost item listing (Admin/Owner) | Yes |
+| `DELETE` | `/api/lost/{id}` | Permanently delete a lost item listing (Admin/Owner) | Yes |
+
+### Notifications & Communication
+| HTTP Method | Route | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/notifications` | Fetch unread notifications for user | Yes |
+| `PUT` | `/api/notifications/{id}/read`| Mark a specific notification as read | Yes |
+| `POST` | `/api/contact` | Send a message to an item owner | Yes |
+
+### Administrator Operations
+| HTTP Method | Route | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/admin/stats` | Retrieve platform-wide metrics | Admin Only |
+| `GET` | `/api/admin/reports/monthly`| Download the Monthly PDF Report | Admin Only |
+
+---
+
+## 📂 Project Structure
+
+```
+Find_X/
+├── backend/                  # Spring Boot REST API
+│   ├── src/main/java/        # Java Source Files
+│   ├── src/main/resources/   # App Configuration & Assets
+│   ├── uploads/              # Local uploaded files (Git ignored)
+│   ├── pom.xml               # Maven Dependency Management
+│   └── mvnw.cmd              # Maven Wrapper
+└── frontend/                 # React Single Page App
+    ├── src/
+    │   ├── components/       # Reusable layout and ui components
+    │   ├── pages/            # View Pages (Home, Lost, Found, Admin)
+    │   ├── context/          # Global Authentication and Theme contexts
+    │   └── main.jsx          # Entry point
+    ├── tailwind.config.js    # Styling configurations
+    └── vite.config.js        # Vite build configuration
+```
+
+---
+
+## 🚀 Installation & Local Run
+
+### Prerequisites
+*   [Java Development Kit (JDK) 17+](https://adoptium.net/)
+*   [Node.js (v18+) & npm](https://nodejs.org/)
+*   [MongoDB Community Server](https://www.mongodb.com/try/download/community) (running on `localhost:27017`)
+
+### 1. Database Setup
+Ensure MongoDB is running locally:
+```bash
+# On Windows (as Administrator)
+net start MongoDB
+```
+
+### 2. Configure Environment Variables
+You can override credentials in `backend/src/main/resources/application.properties` by setting system environment variables:
+```bash
+# Optional: Setup Google OAuth & Email credentials
+set GOOGLE_CLIENT_ID=your_client_id
+set SMTP_USERNAME=your_gmail_address
+set SMTP_PASSWORD=your_gmail_app_password
+set JWT_SECRET=your_custom_secret_key_at_least_32_bytes
+```
+
+### 3. Launch Backend Server
+```bash
+cd backend
+# Build the project
+.\mvnw.cmd clean compile
+# Run the application
+.\mvnw.cmd spring-boot:run
+```
+The backend server will start on [http://localhost:8080](http://localhost:8080).
+
+### 4. Launch Frontend Client
+```bash
+cd frontend
+# Install node dependencies
+npm install
+# Run the development server
+npm run dev
+```
+The frontend dev server will start on [http://localhost:5173](http://localhost:5173).
+
+---
+
+## 🔮 Future Roadmap
+*   **AI-Powered Image Matching**: Integrate computer vision models (e.g., TensorFlow.js or backend services) to analyze and match uploaded images of lost and found items.
+*   **Real-time Messaging**: Upgrade the backend with WebSockets to enable direct chat channels instead of simple email/form message submissions.
+*   **Geolocation Map View**: Embed maps (using Leaflet/Google Maps API) to let users drop pins on exactly where items were lost or spotted.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

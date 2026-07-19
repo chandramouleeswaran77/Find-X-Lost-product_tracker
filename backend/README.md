@@ -1,78 +1,133 @@
-# FindX Backend
+# ⚙️ FindX Backend API
 
-A Spring Boot REST API for the FindX lost and found application.
+Welcome to the backend codebase of FindX, a secure REST API built with **Spring Boot 3.x** and **Java 17+**, using **MongoDB** for document storage. This API implements user authentication, search indexing, real-time-like notifications, item keyword matching, and PDF report compilation.
 
-## Prerequisites
+---
 
-- Java 17 or higher
-- Maven 3.6 or higher
-- MongoDB running on localhost:27017
+## 🛠️ Tech Stack & Key Dependencies
+*   **Java 17+**: Utilizing modern language features (records, text blocks, enhanced switches).
+*   **Spring Boot 3.5**: Core framework for web REST APIs, security, and data layers.
+*   **Spring Security & JWT**: For securing routes, generating user JWT tokens, and handling cross-origin requests.
+*   **Spring Data MongoDB**: Integrates directly with standalone or Atlas MongoDB instances.
+*   **OpenPDF**: Programmatic, high-performance generation of administrative monthly reports.
+*   **Lombok**: Reduces boilerplate code (getters, setters, constructors, builders).
 
-## Setup
+---
 
-1. Make sure MongoDB is running on your local machine:
-   ```bash
-   mongod
-   ```
+## 🏗️ Architecture & Component Design
+The project adheres to the standard **Controller-Service-Repository** MVC design pattern:
+1.  **Controllers (REST Endpoints)**: Expose public and authenticated endpoints, parse request payloads, map DTOs, and format HTTP responses.
+2.  **Services (Business Logic)**: Handle core algorithms (such as keyword parsing, user enrollment, notification dispatching, and PDF creation).
+3.  **Repositories (Data Access)**: Spring Data Mongo repositories wrapping MongoDB queries and aggregation pipelines.
+4.  **Security Configurations**: Restrict access to specific controllers based on roles (`USER`, `ADMIN`) or token validation status.
 
-2. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+---
 
-3. Compile the project:
-   ```bash
-   ./mvnw clean compile
-   ```
+## 💾 Domain Models & Schema Design
 
-4. Run the application:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+### 1. User
+Represents authenticated individuals on the platform.
+```json
+{
+  "_id": "60d5ec4b2f4f2c1b48b598d1",
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "imageUrl": "https://lh3.googleusercontent.com/a/avatar_url",
+  "role": "USER",
+  "createdAt": "2026-07-19T05:00:00.000Z"
+}
+```
 
-The API will be available at `http://localhost:8080`
+### 2. LostItem & FoundItem
+Entities storing details about lost/found assets.
+```json
+{
+  "_id": "60d5ec4b2f4f2c1b48b598d2",
+  "item": "AirPods Pro",
+  "description": "Left earbud lost in central park, charging case has a scratch.",
+  "location": "Central Park",
+  "imageUrl": "http://localhost:8080/uploads/lost/1760495465851_buds.png",
+  "postedBy": "60d5ec4b2f4f2c1b48b598d1",
+  "contactEmail": "jane@example.com",
+  "contactPhone": "+1234567890",
+  "status": "POSSIBLE_MATCH",
+  "matchedWith": "60d5ec4b2f4f2c1b48b598d5",
+  "createdAt": "2026-07-19T05:05:00.000Z"
+}
+```
 
-## API Endpoints
+### 3. Notification
+Used to push contextual alerts directly onto the user's navbar bell icon.
+```json
+{
+  "_id": "60d5ec4b2f4f2c1b48b598d3",
+  "userId": "60d5ec4b2f4f2c1b48b598d1",
+  "message": "Potential match found: iPhone 13 Pro",
+  "itemId": "60d5ec4b2f4f2c1b48b598d2",
+  "type": "MATCH",
+  "read": false,
+  "createdAt": "2026-07-19T05:10:00.000Z"
+}
+```
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
+---
 
-### Lost Items
-- `GET /api/lost` - Get all lost items
-- `GET /api/lost/search?q={query}` - Search lost items
-- `POST /api/lost` - Create lost item report
-- `GET /api/lost/{id}` - Get lost item by ID
-- `PUT /api/lost/{id}` - Update lost item
-- `DELETE /api/lost/{id}` - Delete lost item
+## 🔑 Core Technical Implementation Details
 
-### Found Items
-- `GET /api/found` - Get all found items
-- `GET /api/found/search?q={query}` - Search found items
-- `POST /api/found` - Create found item report
-- `GET /api/found/{id}` - Get found item by ID
-- `PUT /api/found/{id}` - Update found item
-- `DELETE /api/found/{id}` - Delete found item
+### 1. Spring Security Configuration
+Routes are secured via a customized security filter chain configured in `SecurityConfig.java`:
+```java
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/google", "/api/lost", "/api/found", "/uploads/**").permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    
+    return http.build();
+}
+```
 
-### Contact Requests
-- `POST /api/contact` - Create contact request
-- `GET /api/contact` - Get all contact requests
-- `GET /api/contact/item/{itemName}` - Get contact requests by item name
+### 2. Item Matching Engine Logic
+The `MatchingService` operates sequentially:
+1.  **Hooking**: Runs asynchronously inside a post-persist hook when a user submits a new lost/found item.
+2.  **Keyword Extraction**: Splits the item title and description by whitespace and punctuation, filters out common stop-words, and converts strings to lowercase.
+3.  **Fuzzy String Search**: Compares tokens from the new item against existing open records using keyword intersections.
+4.  **Synonym Resolution**: Resolves key product groups (e.g., matching "earbuds" ↔ "airpods" ↔ "buds" ↔ "headphones").
+5.  **State Transition**: If overlapping tokens exceed a match threshold, both items are transitioned to `POSSIBLE_MATCH` status, referencing each other's database identifiers.
 
-## Database
+### 3. PDF Generator (OpenPDF)
+Admin dashboard utilizes `PdfReportService` to aggregate database stats:
+*   Imports dependencies: `openpdf` (com.github.librepdf).
+*   Constructs PDF documents in memory, inserting customized header blocks, metadata properties, and grid alignment tables.
+*   Writes structured text detailing unresolved reports, successful claim rates, and registration timelines.
 
-The application uses MongoDB with the following collections:
-- `users` - User accounts
-- `lost_items` - Lost item reports
-- `found_items` - Found item reports
-- `contact_requests` - Contact requests
+---
 
-## Sample Data
+## 🚀 Setup & Installation
 
-The application automatically initializes with sample data on first run, including:
-- Admin user (username: admin, password: 123123)
-- Sample lost and found items
+### Prerequisite Checklist
+*   **Java 17+** (Installed and in system PATH).
+*   **MongoDB Server** running locally on port `27017`.
 
-## CORS Configuration
-
-The API is configured to accept requests from `http://localhost:5173` (Vite dev server).
+### Local Execution Instructions
+1.  Verify local MongoDB connection:
+    ```properties
+    spring.data.mongodb.uri=mongodb://localhost:27017/findx
+    spring.data.mongodb.database=findx
+    ```
+2.  Install dependencies and compile:
+    ```bash
+    .\mvnw.cmd clean compile
+    ```
+3.  Run the Spring Boot application:
+    ```bash
+    .\mvnw.cmd spring-boot:run
+    ```
+4.  Verify running server by navigating to [http://localhost:8080/api/lost](http://localhost:8080/api/lost) in your browser.

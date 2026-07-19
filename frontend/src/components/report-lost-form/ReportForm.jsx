@@ -371,3 +371,4 @@ const ReportForm = ({ type = 'lost' }) => {
 };
 
 export default ReportForm;
+
