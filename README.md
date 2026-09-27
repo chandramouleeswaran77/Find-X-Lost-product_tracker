@@ -203,13 +203,3 @@ The frontend dev server will start on [http://localhost:5173](http://localhost:5
 
 ---
 
-## 🔮 Future Roadmap
-*   **AI-Powered Image Matching**: Integrate computer vision models (e.g., TensorFlow.js or backend services) to analyze and match uploaded images of lost and found items.
-*   **Real-time Messaging**: Upgrade the backend with WebSockets to enable direct chat channels instead of simple email/form message submissions.
-*   **Geolocation Map View**: Embed maps (using Leaflet/Google Maps API) to let users drop pins on exactly where items were lost or spotted.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
